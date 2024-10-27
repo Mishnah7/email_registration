@@ -7,6 +7,7 @@ const pool = new Pool({
 
 module.exports = async (req, res) => {
     if (req.method === 'POST') {
+        console.log('Received registration data:', req.body); // Log the incoming data
         const { name, email, password } = req.body;
 
         try {
@@ -16,6 +17,7 @@ module.exports = async (req, res) => {
             );
             res.status(201).json({ message: 'User registered successfully', id: result.rows[0].id });
         } catch (err) {
+            console.error('Error registering user:', err); // Log the error
             if (err.code === '23505') { // Unique violation
                 return res.status(400).json({ message: 'User already exists' });
             }

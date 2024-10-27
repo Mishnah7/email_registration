@@ -24,12 +24,12 @@ app.get('/', (req, res) => {
 app.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
 
-    // Insert user into the database
     const sql = `INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id`;
     try {
         const result = await pool.query(sql, [name, email, password]);
         res.status(201).json({ message: 'User registered successfully', id: result.rows[0].id });
     } catch (err) {
+        console.error('Error registering user:', err); // Log the error
         if (err.code === '23505') { // Unique violation
             return res.status(400).json({ message: 'User already exists' });
         }
