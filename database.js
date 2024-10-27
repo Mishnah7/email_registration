@@ -1,31 +1,32 @@
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg'); // Import the pg library
 const path = require('path');
 
-// Create a new database file
-const dbPath = path.join(__dirname, 'users.db'); // This will create users.db in your project directory
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) {
-        console.error('Error opening database ' + err.message);
-    } else {
-        console.log('Connected to the SQLite database.');
-    }
+// Create a new PostgreSQL pool instance
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL, // Use environment variable for connection string
 });
 
 // Create a users table
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+const createTable = async () => {
+    const sql = `CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
         name TEXT NOT NULL,
         email TEXT NOT NULL UNIQUE,
         password TEXT NOT NULL
-    )`, (err) => {
-        if (err) {
-            console.error('Error creating table ' + err.message);
-        } else {
-            console.log('Users table created or already exists.');
-        }
-    });
-});
+    )`;
 
-// Close the database connection
-db.close();
+    try {
+        await pool.query(sql);
+        console.log('Users table created or already exists.');
+    } catch (err) {
+        console.error('Error creating table: ' + err.message);
+    }
+};
+
+// Call the function to create the table
+createTable()
+    .then(() => pool.end()) // Close the pool after the operation
+    .catch(err => {
+        console.error('Error closing the pool: ' + err.message);
+        pool.end();
+    });

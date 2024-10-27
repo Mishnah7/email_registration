@@ -6,8 +6,8 @@ document.getElementById('registrationForm').addEventListener('submit', async fun
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    // Send data to the serverless function
-    const response = await fetch('/api/register', {
+    // Send data to the registration API endpoint
+    const response = await fetch('/register', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
